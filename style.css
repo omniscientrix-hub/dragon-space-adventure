@@ -1,0 +1,201 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: #0a0e27;
+    color: #fff;
+    overflow: hidden;
+}
+
+.game-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #0a0e27 0%, #1a1a3a 100%);
+}
+
+.header {
+    padding: 20px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.5);
+    border-bottom: 2px solid #00ffff;
+    z-index: 10;
+}
+
+.header h1 {
+    font-size: 2em;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px #00ffff;
+    color: #00ffff;
+}
+
+.stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.stat {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #00ff00;
+    text-shadow: 0 0 5px #00ff00;
+}
+
+.stat span {
+    color: #ffff00;
+}
+
+#gameCanvas {
+    flex-grow: 1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 50%, #1a1a4a 0%, #0a0a1a 100%);
+}
+
+.controls-info {
+    padding: 15px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.5);
+    border-top: 2px solid #00ffff;
+    font-size: 0.9em;
+    color: #00ffff;
+}
+
+.controls-info p {
+    margin: 0;
+}
+
+footer {
+    padding: 10px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.7);
+    border-top: 1px solid #666;
+    font-size: 0.85em;
+    color: #888;
+}
+
+footer p {
+    margin: 0;
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #1a1a3a 0%, #0a0e27 100%);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    border: 3px solid #00ffff;
+    box-shadow: 0 0 30px #00ffff;
+    max-width: 400px;
+    animation: popIn 0.3s ease-out;
+}
+
+@keyframes popIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.modal-content h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+    color: #00ffff;
+    text-shadow: 0 0 10px #00ffff;
+}
+
+.modal-content p {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    color: #fff;
+}
+
+.final-score {
+    font-size: 1.5em !important;
+    color: #ffff00 !important;
+    font-weight: bold;
+    margin: 20px 0 !important;
+}
+
+.modal-content button {
+    padding: 12px 30px;
+    font-size: 1.1em;
+    background: linear-gradient(135deg, #00ffff, #0099ff);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+    box-shadow: 0 0 15px #00ffff;
+}
+
+.modal-content button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px #00ffff;
+}
+
+.modal-content button:active {
+    transform: scale(0.98);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .header h1 {
+        font-size: 1.5em;
+    }
+
+    .stats {
+        gap: 20px;
+    }
+
+    .stat {
+        font-size: 0.9em;
+    }
+
+    .controls-info {
+        font-size: 0.8em;
+    }
+
+    .modal-content {
+        margin: 20px;
+        padding: 30px;
+    }
+
+    .modal-content h2 {
+        font-size: 1.5em;
+    }
+
+    .modal-content p {
+        font-size: 1em;
+    }
+}
