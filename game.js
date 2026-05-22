@@ -28,7 +28,7 @@ const dragon = {
     height: 50,
     velocityX: 0,
     velocityY: 0,
-    speed: 6,
+    speed: 8,
     targetX: canvas.width / 2,
     targetY: canvas.height - 100,
     trailX: [],
@@ -42,6 +42,9 @@ let mouseY = canvas.height - 100;
 
 canvas.addEventListener('touchstart', (e) => {
     touchActive = true;
+    const touch = e.touches[0];
+    dragon.targetX = touch.clientX;
+    dragon.targetY = touch.clientY;
 });
 
 canvas.addEventListener('touchend', () => {
@@ -49,6 +52,7 @@ canvas.addEventListener('touchend', () => {
 });
 
 canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
     const touch = e.touches[0];
     dragon.targetX = touch.clientX;
     dragon.targetY = touch.clientY;
@@ -57,10 +61,9 @@ canvas.addEventListener('touchmove', (e) => {
 canvas.addEventListener('mousemove', (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
-    if (!touchActive) {
-        dragon.targetX = mouseX;
-        dragon.targetY = mouseY;
-    }
+    // Always update target - dragon follows mouse/touch
+    dragon.targetX = mouseX;
+    dragon.targetY = mouseY;
 });
 
 // Spaceships array
@@ -196,16 +199,46 @@ function createTrail(x, y) {
     ));
 }
 
+// Draw finger indicator circle (where you're touching)
+function drawTargetIndicator() {
+    if (!touchActive && !mouseX) return;
+    
+    // Draw target circle where finger is
+    ctx.strokeStyle = 'rgba(100, 255, 200, 0.4)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(dragon.targetX, dragon.targetY, 25, 0, Math.PI * 2);
+    ctx.stroke();
+    
+    // Draw crosshair
+    ctx.strokeStyle = 'rgba(100, 255, 200, 0.3)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(dragon.targetX - 10, dragon.targetY);
+    ctx.lineTo(dragon.targetX + 10, dragon.targetY);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(dragon.targetX, dragon.targetY - 10);
+    ctx.lineTo(dragon.targetX, dragon.targetY + 10);
+    ctx.stroke();
+}
+
 // Draw dragon with smoother animations
 function drawDragon() {
     ctx.save();
     
     // Calculate rotation based on movement direction
     const dx = dragon.targetX - dragon.x;
-    const angle = Math.atan2(dx, -50);
+    const dy = dragon.targetY - dragon.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    
+    let angle = 0;
+    if (distance > 2) {
+        angle = Math.atan2(dy, dx);
+    }
     
     ctx.translate(dragon.x + dragon.width / 2, dragon.y + dragon.height / 2);
-    ctx.rotate(angle * 0.3);
+    ctx.rotate(angle);
     
     // Dragon glow
     ctx.fillStyle = 'rgba(0, 255, 150, 0.2)';
@@ -215,57 +248,61 @@ function drawDragon() {
     ctx.arc(0, 0, 30, 0, Math.PI * 2);
     ctx.fill();
     
-    // Dragon head
+    // Dragon head (pointing forward in direction of movement)
     ctx.fillStyle = '#00ff99';
     ctx.shadowColor = 'rgba(0, 255, 150, 0.8)';
     ctx.shadowBlur = 12;
     ctx.beginPath();
-    ctx.arc(0, -18, 14, 0, Math.PI * 2);
+    ctx.arc(15, 0, 14, 0, Math.PI * 2);
     ctx.fill();
     
     // Dragon eyes - animated
     const eyeOffset = Math.sin(game.timeElapsed * 0.1) * 2;
     ctx.fillStyle = '#ffff00';
     ctx.beginPath();
-    ctx.arc(-6, -20 + eyeOffset, 4, 0, Math.PI * 2);
+    ctx.arc(18, -6 + eyeOffset, 4, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
-    ctx.arc(6, -20 + eyeOffset, 4, 0, Math.PI * 2);
+    ctx.arc(18, 6 + eyeOffset, 4, 0, Math.PI * 2);
     ctx.fill();
     
     // Dragon pupils
     ctx.fillStyle = '#000000';
     ctx.beginPath();
-    ctx.arc(-6, -20 + eyeOffset, 2, 0, Math.PI * 2);
+    ctx.arc(18, -6 + eyeOffset, 2, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
-    ctx.arc(6, -20 + eyeOffset, 2, 0, Math.PI * 2);
+    ctx.arc(18, 6 + eyeOffset, 2, 0, Math.PI * 2);
     ctx.fill();
     
     // Dragon body
     ctx.fillStyle = '#00ff99';
     ctx.beginPath();
-    ctx.ellipse(0, 2, 12, 18, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 0, 16, 18, 0, 0, Math.PI * 2);
     ctx.fill();
     
     // Dragon wings - animated
     const wingFlap = Math.sin(game.timeElapsed * 0.15) * 0.3;
     ctx.fillStyle = 'rgba(0, 255, 150, 0.7)';
     ctx.beginPath();
-    ctx.ellipse(-16, 0, 10, 14, Math.PI / 4 + wingFlap, 0, Math.PI * 2);
+    ctx.ellipse(-10, -12, 10, 14, Math.PI / 4 + wingFlap, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
-    ctx.ellipse(16, 0, 10, 14, -Math.PI / 4 - wingFlap, 0, Math.PI * 2);
+    ctx.ellipse(-10, 12, 10, 14, -Math.PI / 4 - wingFlap, 0, Math.PI * 2);
     ctx.fill();
     
-    // Dragon tail - animated
+    // Dragon tail - animated, pointing backwards
     ctx.strokeStyle = '#00ff99';
     ctx.lineWidth = 4;
     ctx.lineCap = 'round';
     ctx.beginPath();
-    ctx.moveTo(0, 20);
+    ctx.moveTo(-15, 0);
     const tailWave = Math.sin(game.timeElapsed * 0.2) * 5;
-    ctx.quadraticCurveTo(10 + tailWave, 32, 8, 45);
+    ctx.quadraticCurveTo(-28, -8 + tailWave, -38, -5);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(-15, 0);
+    ctx.quadraticCurveTo(-28, 8 - tailWave, -38, 5);
     ctx.stroke();
     
     ctx.shadowBlur = 0;
@@ -338,20 +375,20 @@ function updateDragon() {
     const dy = dragon.targetY - dragon.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
     
-    if (distance > 8) {
-        dragon.velocityX = (dx / distance) * dragon.speed * 0.9;
-        dragon.velocityY = (dy / distance) * dragon.speed * 0.9;
+    // Smoother acceleration towards target
+    if (distance > 5) {
+        dragon.velocityX = (dx / distance) * dragon.speed;
+        dragon.velocityY = (dy / distance) * dragon.speed;
     } else {
-        dragon.velocityX *= 0.85;
-        dragon.velocityY *= 0.85;
+        // Slow down when close to target
+        dragon.velocityX *= 0.8;
+        dragon.velocityY *= 0.8;
     }
     
     dragon.x += dragon.velocityX;
     dragon.y += dragon.velocityY;
     
-    // Boundary checking with padding
-    dragon.x = Math.max(10, Math.min(canvas.width - dragon.width - 10, dragon.x));
-    dragon.y = Math.max(10, Math.min(canvas.height - dragon.height - 10, dragon.y));
+    // No boundary checking - let dragon go anywhere
 }
 
 // Check collision with more forgiveness
@@ -446,6 +483,9 @@ function draw() {
     
     // Draw particles
     particles.forEach(p => p.draw());
+    
+    // Draw target indicator
+    drawTargetIndicator();
     
     // Draw dragon
     drawDragon();
